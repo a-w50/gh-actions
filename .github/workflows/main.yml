@@ -9,7 +9,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Hello world action
         id: hello
-        uses: a-w50/gh-actions/.github/actions/sample@v1.0.1
+        uses: a-w50/gh-actions/.github/actions/sample@v1.0.2
         with:
           who-to-greet: 'Mona the Octocat'
       - name: Get the output time
