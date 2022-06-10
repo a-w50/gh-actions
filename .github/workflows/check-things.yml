@@ -1,0 +1,13 @@
+name: check_things
+on: workflow_dispatch
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/a-w50/gh-actions/blabla:latest
+
+    steps:
+      - name: DEBUG
+        run: |
+          ls -la /github
