@@ -8,8 +8,10 @@ RUN mkdir -p /.cache/cpm
 ENV CPM_SOURCE_CACHE /.cache/cpm
 RUN edm --register-cmake-module
 RUN apt-get install -y clang-format
+RUN apt-get install -y curl
+
+RUN curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s
 
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-
