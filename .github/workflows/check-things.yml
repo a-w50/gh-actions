@@ -11,4 +11,4 @@ jobs:
       - uses: actions/checkout@v2
       - name: DEBUG
         run: |
-          ls -la ./
+          clang-format --dry-run --style=file src/
