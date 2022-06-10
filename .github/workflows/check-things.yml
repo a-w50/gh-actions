@@ -8,6 +8,7 @@ jobs:
       image: ghcr.io/a-w50/gh-actions/blabla:latest
 
     steps:
+      - uses: actions/checkout@v2
       - name: DEBUG
         run: |
           ls -la /github
