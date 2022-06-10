@@ -11,4 +11,4 @@ jobs:
       - uses: actions/checkout@v2
       - name: DEBUG
         run: |
-          clang-format --dry-run --style=file src/
+          clang-format --dry-run --style=file src/test.cpp | reviewdog -efm="%f:%l:%c: warning: %m" -reporter=github-check
