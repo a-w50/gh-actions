@@ -1,14 +1,42 @@
+name: everest-core CI/CD
 on: workflow_dispatch
 
 jobs:
-  hello_world_job:
+  compile:
+    name: Compile
     runs-on: ubuntu-latest
-    name: A job to say hello
     steps:
-      - name: Check out repository
+      - name: Setup cache
+        uses: actions/cache@v3
+        with:
+          path: cache
+          key: compile-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            compile-${{ github.ref }}-
+            compile-
+      - name: Generate run-script
+        run: |
+          id
+          mkdir scripts
+          cat <<EOF >> scripts/init.sh
+          #!/bin/sh
+
+          cmake -B build -S \${EXT_MOUNT}/source/everest-core -G Ninja -DEVC_ENABLE_CCACHE=1
+          ninja -j\$(nproc) -C build
+          exit
+          EOF
+          cat scripts/init.sh
+          chmod a+x scripts/init.sh
+      - name: Checkout everest-core
         uses: actions/checkout@v3
-      - name: Hello world action
-        id: hello
-        uses: a-w50/gh-actions/.github/actions/everest-build
-      - name: Get the output time
-        run: echo "End of the line"
+        with:
+          repository: EVerest/everest-core
+          path: source/everest-core
+          ref: test/to_build
+      - name: Pull docker container
+        run: |
+          docker pull ghcr.io/a-w50/gh-actions/build-env:latest
+      - name: Run the container
+        run: |
+          docker run --rm -v "$(pwd):/ext" ghcr.io/a-w50/gh-actions/build-env:latest
+          

@@ -13,13 +13,15 @@ setup_cache(){
 }
 
 run_init(){
-    init_script=$EXT_MOUNT/scripts/init.sh
+    init_script=${EXT_MOUNT}/scripts/init.sh
+
+    env
 
     if [ -f "${init_script}" ]; then
         exec ${init_script}
     else
         printf "No ${init_script} available, executing sh\\n"
-        exec /bin/sh
+        #exec /bin/sh
     fi
 }
 

@@ -49,7 +49,7 @@ RUN apk add --no-cache \
 
 
 # install ev-cli
-RUN python3 -m pip install git+https://github.com/EVerest/everest-utils#subdirectory=ev-dev-tools
+RUN python3 -m pip install git+https://github.com/EVerest/everest-utils@bfe50ec#subdirectory=ev-dev-tools
 
 # install edm
 RUN python3 -m pip install git+https://github.com/EVerest/everest-dev-environment@dbf310f#subdirectory=dependency_manager
