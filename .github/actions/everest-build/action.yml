@@ -1,0 +1,8 @@
+name: 'everest builder'
+description: 'Standard build for everest libraries'
+runs:
+  using: 'docker'
+  image: 'ghcr.io/a-w50/gh-actions/blabla:latest'
+  args:
+    - ${{ inputs.who-to-greet }}
+

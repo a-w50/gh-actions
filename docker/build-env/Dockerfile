@@ -1,49 +1,81 @@
-FROM alpine:3.16.0
+# syntax=docker/dockerfile:1
+FROM alpine:3.17
 
-# all build dependencies
+ARG EXT_MOUNT=/ext
+ARG EVEREST_CMAKE_PATH=/usr/lib/cmake/everest-cmake
+
 RUN apk update && \
-    apk add \
+    apk add --no-cache \
+        # basic command line tools
         git \
-        py3-pip \
         curl \
-        clang \
-        clang-extra-tools \
-        cmake \
-        make \
-        nodejs \
-        nodejs-dev \
-        npm \
+        rsync \
+        py3-pip \
+        # build tools
         samurai \
+        make \
+        cmake \
+        # compilers
         binutils \
-        musl-dev \
         gcc \
         g++ \
-        boost1.78-log_setup \
-        boost1.78-dev \
+        # common dev libraries
+        musl-dev \
+        linux-headers \
+        # compiler tools
+        clang-extra-tools \
+        ccache \
+        # python3 support
+        py3-pip
+
+# additional tools
+RUN apk add --no-cache \
+        # required by some everest libraries
+        boost-dev \
+        # required by libocpp
         sqlite-dev \
         openssl-dev \
-        rsync \
+        # required by everest-framework
+        nodejs-dev \
+        nodejs \
+        npm \
+        # required by packet sniffer module
+        libpcap-dev \
+        libevent-dev \
+        # required by RiseV2G
         maven \
-        ccache
+        # required by pybind11
+        python3-dev
 
-# reviewdog
-# RUN curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s
 
-# edm and ev-cli
-RUN python3 -m pip install git+https://github.com/EVerest/everest-dev-environment#subdirectory=dependency_manager && \
-    python3 -m pip install git+https://github.com/EVerest/everest-utils#subdirectory=ev-dev-tools
+# install ev-cli
+RUN python3 -m pip install git+https://github.com/EVerest/everest-utils#subdirectory=ev-dev-tools
 
-# setup cache dirs
-ENV CPM_SOURCE_CACHE /.cache/cpm
-ENV CCACHE_DIR /.cache/ccache
-COPY maven-cache.xml /tmp/maven-cache.xml
-RUN mkdir -p /.cache/cpm && \
-    mkdir -p $HOME/.m2 && \
-    cp /tmp/maven-cache.xml $HOME/.m2/settings.xml && \
-    mkdir -p /.cache/ccache
+# install edm
+RUN python3 -m pip install git+https://github.com/EVerest/everest-dev-environment@dbf310f#subdirectory=dependency_manager
 
-# setup edm
-RUN edm --register-cmake-module
+# install everest-cmake
+RUN git clone https://github.com/EVerest/everest-cmake.git $EVEREST_CMAKE_PATH
 
-RUN mkdir /workspace
-WORKDIR /workspace
+RUN ( \
+    cd $EVEREST_CMAKE_PATH \
+    git checkout 329f8db \
+    rm -r .git \
+    )
+
+# FIXME (aw): disable ownership check
+RUN git config --global --add safe.directory '*'
+
+ENV WORKSPACE_PATH /workspace
+ENV ASSETS_PATH /assets
+
+RUN mkdir $ASSETS_PATH
+COPY maven-settings.xml $ASSETS_PATH/
+
+ENV EXT_MOUNT $EXT_MOUNT
+
+COPY ./entrypoint.sh /
+
+WORKDIR $WORKSPACE_PATH
+
+ENTRYPOINT ["/entrypoint.sh"]
